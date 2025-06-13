@@ -49,12 +49,13 @@ export default function Navbar() {
           >
             Адаптиране на CV
           </Link>
-          <Link
-            href="/#pricing"
+          {/* Changed to native anchor for smooth scroll */}
+          <a
+            href="#pricing"
             className="text-cyan-700 font-medium hover:text-cyan-900 transition"
           >
             Цени
-          </Link>
+          </a>
 
           {session ? (
             <button
@@ -107,13 +108,18 @@ export default function Navbar() {
               >
                 Адаптиране на CV
               </Link>
-              <Link
-                href="/#pricing"
+              {/* Mobile pricing link with smooth scroll and menu close */}
+              <a
+                href="#pricing"
                 className="text-cyan-700 font-medium"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  setIsOpen(false)
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+                }}
               >
                 Цени
-              </Link>
+              </a>
               {session ? (
                 <button
                   onClick={() => {
