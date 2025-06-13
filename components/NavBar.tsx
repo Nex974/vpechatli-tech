@@ -51,7 +51,7 @@ export default function Navbar() {
           </Link>
           {/* Changed to native anchor for smooth scroll */}
           <a
-            href="#pricing"
+            href="vpechatli.tech/#pricing"
             className="text-cyan-700 font-medium hover:text-cyan-900 transition"
           >
             Цени
