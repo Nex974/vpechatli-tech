@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 'use client'
 
 import Link from 'next/link'
@@ -51,7 +52,7 @@ export default function Navbar() {
           </Link>
           {/* Changed to native anchor for smooth scroll */}
           <a
-            href="vpechatli.tech/#pricing"
+            href="/#pricing"
             className="text-cyan-700 font-medium hover:text-cyan-900 transition"
           >
             Цени
