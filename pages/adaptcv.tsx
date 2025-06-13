@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Lock } from 'lucide-react'
-import { useRouter } from 'next/router'
+import { Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NavBar from '@/components/NavBar'
 
@@ -10,7 +9,6 @@ export default function AdaptPage() {
   const [loading, setLoading] = useState(false)
   const [adaptedCV, setAdaptedCV] = useState('')
   const [unlocked, setUnlocked] = useState(false)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,12 +46,6 @@ export default function AdaptPage() {
     <>
       <NavBar />
       <div className="pt-18 min-h-screen bg-gradient-to-br from-cyan-50 to-white px-6 py-10">
-        <button
-          onClick={() => router.push('/')}
-          className="cursor-pointer mb-6 flex items-center text-cyan-600 hover:text-cyan-800 transition"
-        >
-          <ArrowLeft className="mr-2" /> Обратно
-        </button>
 
         <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-3xl mx-auto border border-cyan-100">
           <h1 className="text-4xl font-extrabold text-center text-cyan-700 mb-8">
