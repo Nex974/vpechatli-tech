@@ -60,7 +60,7 @@ export default function Navbar() {
           {session ? (
             <button
               onClick={() => signOut()}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+              className="cursor-pointer bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
             >
               Изход ({session.user?.name?.split(' ')[0]})
             </button>
