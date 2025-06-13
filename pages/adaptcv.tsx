@@ -6,7 +6,7 @@ import NavBar from '@/components/NavBar'
 export default function AdaptPage() {
   const [jobText, setJobText] = useState('')
   const [cvText, setCvText] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) //disable to start working
   const [adaptedCV, setAdaptedCV] = useState('')
   const [unlocked, setUnlocked] = useState(false)
 

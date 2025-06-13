@@ -8,7 +8,7 @@ export default function CreatePage() {
   const { data: session } = useSession()
   const [jobText, setJobText] = useState('')
   const [cvText, setCvText] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) //disable to start working
   const [generatedLetter, setGeneratedLetter] = useState(
     'Motivational letters are typically submitted alongside your CV or resume. Unlike a cover letter, which gives practical examples of how your skills and experience match the opening, a motivational letter focuses more on your personality, interests, and motivation to apply'
   )
