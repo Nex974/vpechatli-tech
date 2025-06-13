@@ -18,7 +18,7 @@ export default function Main() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link href="/createletter" passHref>
                 <button
-                  className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-md transition"
+                  className="cursor-pointer w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-md transition"
                   type="button"
                 >
                   Генерирай мотивационно писмо
@@ -29,7 +29,7 @@ export default function Main() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link href="/adaptcv" passHref>
                 <button
-                  className="w-full sm:w-auto bg-white text-cyan-700 border border-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-sm transition"
+                  className="cursor-pointer w-full sm:w-auto bg-white text-cyan-700 border border-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-sm transition"
                   type="button"
                 >
                   Адаптирай CV за конкретна обява
@@ -88,7 +88,7 @@ export default function Main() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-md transition"
+              className="cursor-pointer bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg text-base sm:text-lg font-semibold shadow-md transition"
               type="button"
             >
               Начало
@@ -107,7 +107,7 @@ export default function Main() {
   <div className="h-px w-3/4 bg-cyan-100"></div>
 </motion.div>
 
-  <section className="bg-white py-20 px-6">
+  <section id="pricing" className="bg-white py-20 px-6">
     <h2 className="text-3xl font-bold text-center text-cyan-700 mb-4 drop-shadow-sm">
       Избери своя план
     </h2>
@@ -161,7 +161,7 @@ export default function Main() {
           </ul>
           <button
             type="button"
-            className={`w-full py-2 px-4 rounded-lg font-semibold transition ${
+            className={`cursor-pointer w-full py-2 px-4 rounded-lg font-semibold transition ${
               highlight
                 ? 'bg-white text-cyan-700 hover:bg-gray-100'
                 : 'bg-cyan-600 text-white hover:bg-cyan-700'
