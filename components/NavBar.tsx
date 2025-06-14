@@ -18,21 +18,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const handleGoogleLogin = async () => {
-    try {
-      // Reset auth state before sign-in
-      await signOut({ redirect: false })
-      localStorage.clear()
-      sessionStorage.clear()
-
-      // Trigger Google sign-in
-      await signIn('google')
-    } catch (error) {
-      console.error('Google login error:', error)
-      alert('Възникна проблем при влизане. Моля, опитайте отново.') // "There was a login problem. Please try again."
-    }
-  }
-
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all ${
@@ -82,7 +67,7 @@ export default function Navbar() {
             </button>
           ) : (
             <button
-              onClick={handleGoogleLogin}
+              onClick={() => signIn('google')}
               className="cursor-pointer bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
             >
               Вход
@@ -150,7 +135,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     setIsOpen(false)
-                    handleGoogleLogin()
+                    signIn('google')
                   }}
                   className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
                 >
