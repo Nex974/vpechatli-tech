@@ -45,6 +45,7 @@ export default function CreatePage() {
         // ✅ CHECK ACCESS (e.g. usageCount and subscriptionActive)
         const accessRes = await fetch('/api/auth/check-access', {
           method: 'GET',
+          credentials: 'include',
           headers: {
             Authorization: `Bearer ${session.user.email}`,
           },
