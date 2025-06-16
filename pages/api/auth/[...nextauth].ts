@@ -3,7 +3,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { FirestoreAdapter } from "@next-auth/firebase-adapter";
 import { getFirestore } from "firebase-admin/firestore";
 import { cert } from "firebase-admin/app";
-import { NextApiRequest, NextApiResponse } from "next";
 
 import { firebaseAdminApp } from "../../../lib/firebase-admin";
 
@@ -25,26 +24,43 @@ export const authOptions: NextAuthOptions = {
   }),
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user }) {
-      const userRef = firestore.collection("users").doc(user.id);
-      const userDoc = await userRef.get();
+    async signIn({ user, account }) {
+      if (!account) {
+        return true; // just in case
+      }
 
-      if (!userDoc.exists) {
-        await userRef.set({
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          createdAt: new Date(),
-          usage: {
-            lettersGenerated: 0,
-            cvsEdited: 0,
-            freeUsed: false,
-          },
-          subscription: {
-            hasMonthlyAccess: false,
-            expiresAt: null,
-          },
-        });
+      const usersRef = firestore.collection("users");
+      const accountsRef = firestore.collection("accounts");
+
+      // Query user by email
+      const userQuery = await usersRef.where("email", "==", user.email).get();
+
+      if (!userQuery.empty) {
+        const userDoc = userQuery.docs[0];
+        const userId = userDoc.id;
+
+        // Check if OAuth account already linked
+        const accountQuery = await accountsRef
+          .where("providerAccountId", "==", account.providerAccountId)
+          .where("provider", "==", account.provider)
+          .get();
+
+        if (accountQuery.empty) {
+          // Link OAuth account manually
+          await accountsRef.add({
+            userId,
+            type: account.type,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            refresh_token: account.refresh_token ?? null,
+            access_token: account.access_token ?? null,
+            expires_at: account.expires_at ?? null,
+            token_type: account.token_type ?? null,
+            scope: account.scope ?? null,
+            id_token: account.id_token ?? null,
+            session_state: account.session_state ?? null,
+          });
+        }
       }
 
       return true;
@@ -52,11 +68,4 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    return await NextAuth(req, res, authOptions);
-  } catch (e) {
-    console.error("[AUTH ERROR]", e);
-    res.status(500).end("Authentication error");
-  }
-}
+export default NextAuth(authOptions);

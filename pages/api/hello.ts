@@ -11,3 +11,4 @@ export default function handler(
 ) {
   res.status(200).json({ name: "John Doe" });
 }
+// firebase database data log

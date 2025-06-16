@@ -12,7 +12,7 @@ export default function Footer() {
       <h4 className="font-semibold text-lg mb-2">Навигация</h4>
       <ul className="text-sm space-y-1">
         <li><Link href="/terms">Условия за ползване</Link></li>
-        <li><Link href="/privacy">Политика за поверителност</Link></li>
+        <li><Link href="/terms">Политика за поверителност</Link></li>
       </ul>
     </div>
     <div>

@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NavBar from '@/components/NavBar'
+import Footer from '@/components/Footer'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
 export default function AdaptPage() {
+  const { data: session } = useSession()
   const [jobText, setJobText] = useState('')
   const [cvText, setCvText] = useState('')
-  const [loading, setLoading] = useState(true) //disable to start working
+  const [loading, setLoading] = useState(false)
   const [adaptedCV, setAdaptedCV] = useState('')
   const [unlocked, setUnlocked] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,14 +22,24 @@ export default function AdaptPage() {
     setUnlocked(false)
 
     try {
-      const res = await fetch('http://localhost:8000/adapt-cv', {
+      const res = await fetch('https://vpechatli-api.onrender.com/adapt-cv', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': session?.user?.email || '',
+        },
         body: JSON.stringify({ job_text: jobText, cv_text: cvText }),
       })
 
       const data = await res.json()
-      setAdaptedCV(data.cv || '')
+      const content = data.cv || data.error || ''
+
+      if (!content.trim().toUpperCase().startsWith('YES')) {
+        alert('Въведената обява е твърде обща или неподходяща. Моля, опитай с по-конкретен текст.')
+        return
+      }
+
+      setAdaptedCV(content)
     } catch (err) {
       console.error('Грешка при заявката:', err)
       alert('Възникна грешка при адаптиране. Опитай пак.')
@@ -34,19 +49,27 @@ export default function AdaptPage() {
   }
 
   const handleUnlock = () => {
-    setUnlocked(true)
+    // TODO: Replace with payment logic or session check
+    // Example: Redirect to payment then unlock on return
+    router.push('/checkout')
   }
-
-  // Preview 20% of adaptedCV
-  const previewLength = Math.floor(adaptedCV.length * 0.2)
-  const previewText = adaptedCV.slice(0, previewLength)
-  const hiddenText = adaptedCV.slice(previewLength)
 
   return (
     <>
-      <NavBar />
-      <div className="pt-18 min-h-screen bg-gradient-to-br from-cyan-50 to-white px-6 py-10">
+      <Head>
+        <title>Vpechatli.tech – AI Мотивационни писма и CV</title>
+        <meta name="description" content="Създай мотивационно писмо и адаптира CV за конкретна обява с помощта на AI." />
+        <meta property="og:title" content="Vpechatli.tech – AI Мотивационни писма и CV" />
+        <meta property="og:description" content="AI инструмент за персонализиране на документи за работа." />
+        <meta property="og:image" content="/og-image.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="index, follow" />
+        <meta charSet="UTF-8" />
+      </Head>
 
+      <NavBar />
+
+      <div className="pt-18 min-h-screen bg-gradient-to-br from-cyan-50 to-white px-6 py-10">
         <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-3xl mx-auto border border-cyan-100">
           <h1 className="text-4xl font-extrabold text-center text-cyan-700 mb-8">
             Адаптирай своето CV
@@ -105,43 +128,41 @@ export default function AdaptPage() {
           </form>
 
           {adaptedCV && (
-            <div className="relative mt-10 p-6 bg-cyan-50 border border-cyan-200 rounded-2xl shadow-inner font-mono text-gray-800 text-sm leading-relaxed min-h-[200px]">
-              <pre className="whitespace-pre-wrap">
-                {previewText}
-                <span
-                  className={`inline-block text-transparent select-none ${
-                    unlocked ? 'blur-none' : 'blur-sm'
-                  }`}
-                  style={{ userSelect: unlocked ? 'text' : 'none' }}
-                >
-                  {hiddenText}
-                </span>
-              </pre>
-
-              {!unlocked && (
-                <div
-                  onClick={handleUnlock}
-                  className="absolute inset-0 bg-white/90 backdrop-blur-md rounded-2xl flex flex-col justify-center items-center cursor-pointer select-none px-6"
-                >
-                  <Lock className="text-cyan-600 mb-4" size={48} />
-                  <p className="mb-4 text-cyan-700 font-semibold text-xl text-center">
-                    Отключи пълния резултат за <strong>1.99 BGN</strong>
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleUnlock()
-                    }}
-                    className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg font-semibold transition cursor-pointer"
-                  >
-                    Отключи сега
-                  </button>
+            <div className="relative mt-10 p-6 bg-cyan-50 border border-cyan-200 rounded-2xl shadow-inner font-mono text-gray-800 text-sm leading-relaxed min-h-[200px] overflow-hidden">
+              {!unlocked ? (
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-md rounded-2xl flex flex-col px-6 py-8 text-center space-y-5 select-none overflow-y-auto max-h-full">
+                  <div className="flex flex-col items-center space-y-4">
+                    <h2 className="text-xl font-semibold text-cyan-800">Резултатът е готов</h2>
+                    <p className="text-gray-600 max-w-md text-sm">
+                      Адаптирано CV, съобразено с конкретната обява. Отключи го и го използвай веднага.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                      <button
+                        onClick={handleUnlock}
+                        className="cursor-pointer bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg font-medium transition"
+                      >
+                        Отключи за 2.49 лв
+                      </button>
+                      <button
+                        onClick={() => router.push('/#pricing')}
+                        className="cursor-pointer text-cyan-700 hover:underline text-sm font-medium"
+                      >
+                        Виж всички планове
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                <pre className="whitespace-pre-wrap">
+                  {adaptedCV.replace(/^YES\s*/i, '')}
+                </pre>
               )}
             </div>
           )}
         </div>
       </div>
+
+      <Footer />
     </>
   )
 }
