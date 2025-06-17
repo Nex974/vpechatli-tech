@@ -43,7 +43,7 @@ export default function CreatePage() {
         }
 
         // ✅ CHECK ACCESS (e.g. usageCount and subscriptionActive)
-        const accessRes = await fetch('/api/auth/check-access', {
+        const accessRes = await fetch('/api/check-access', {
           method: 'GET',
           credentials: 'include',
         })

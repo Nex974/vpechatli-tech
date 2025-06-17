@@ -1,7 +1,7 @@
 // pages/api/check-access.ts
 import { getToken } from "next-auth/jwt";
 import { getFirestore } from "firebase-admin/firestore";
-import { firebaseAdminApp } from "../../../lib/firebase-admin";
+import { firebaseAdminApp } from "../../lib/firebase-admin";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const firestore = getFirestore(firebaseAdminApp);
