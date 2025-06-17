@@ -46,9 +46,6 @@ export default function CreatePage() {
         const accessRes = await fetch('/api/auth/check-access', {
           method: 'GET',
           credentials: 'include',
-          headers: {
-            Authorization: `Bearer ${session.user.email}`,
-          },
         })
 
         if (!accessRes.ok) {
