@@ -75,6 +75,7 @@ export default function CreatePage() {
         setCheckingEligibility(false)
       }
     }
+    console.log("Session:", session);
 
     checkEligibility()
   }, [session])
