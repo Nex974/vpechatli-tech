@@ -22,63 +22,62 @@ export default function CreatePage() {
 
   // Check user access via secure API route
   useEffect(() => {
-    const checkEligibility = async () => {
-      if (!session?.user?.email) {
-        setEligible(false)
-        setUnlocked(false)
-        setCheckingEligibility(false)
-        return
-      }
+  const checkEligibility = async () => {
+    console.log("🔍 Session:", session); // ✅ Add this line
 
-      try {
-        // ✅ INIT USER IN FIRESTORE (first-time setup or missing fields)
-        const initResponse = await fetch('/api/auth/post-login-init', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: session.user.email }),
-        })
-
-        if (!initResponse.ok) {
-          throw new Error('Failed to initialize user in Firestore')
-        }
-
-        // ✅ CHECK ACCESS (e.g. usageCount and subscriptionActive)
-        const accessRes = await fetch('/api/check-access', {
-          method: 'GET',
-          credentials: 'include',
-        })
-
-        if (!accessRes.ok) {
-          setEligible(false)
-          setUnlocked(false)
-          return
-        }
-
-        const data = await accessRes.json()
-
-        // Unlock if usageCount < 1 OR subscriptionActive === true
-        if ((data.usageCount !== undefined && data.usageCount < 1) || data.subscriptionActive === true) {
-          setEligible(true)
-          setUnlocked(true)
-        } else if (data.unlocked) {
-          setEligible(true)
-          setUnlocked(true)
-        } else {
-          setEligible(false)
-          setUnlocked(false)
-        }
-      } catch (error) {
-        console.error('Error checking access:', error)
-        setEligible(false)
-        setUnlocked(false)
-      } finally {
-        setCheckingEligibility(false)
-      }
+    if (!session?.user?.email) {
+      setEligible(false);
+      setUnlocked(false);
+      setCheckingEligibility(false);
+      return;
     }
-    console.log("Session:", session);
 
-    checkEligibility()
-  }, [session])
+    try {
+      const initResponse = await fetch('/api/auth/post-login-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email }),
+      });
+
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize user in Firestore');
+      }
+
+      const accessRes = await fetch('/api/auth/check-access', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!accessRes.ok) {
+        setEligible(false);
+        setUnlocked(false);
+        return;
+      }
+
+      const data = await accessRes.json();
+
+      if ((data.usageCount !== undefined && data.usageCount < 1) || data.subscriptionActive === true) {
+        setEligible(true);
+        setUnlocked(true);
+      } else if (data.unlocked) {
+        setEligible(true);
+        setUnlocked(true);
+      } else {
+        setEligible(false);
+        setUnlocked(false);
+      }
+    } catch (error) {
+      console.error('Error checking access:', error);
+      setEligible(false);
+      setUnlocked(false);
+    } finally {
+      setCheckingEligibility(false);
+    }
+  };
+
+  checkEligibility();
+}, [session]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
