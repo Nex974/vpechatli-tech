@@ -1,92 +1,86 @@
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useSession } from 'next-auth/react'
-import NavBar from '@/components/NavBar'
-import Footer from '@/components/Footer'
-import Head from 'next/head'
+// pages/createletter.tsx
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
+import Head from 'next/head';
 
 export default function CreatePage() {
-  const { data: session } = useSession()
-  const [jobText, setJobText] = useState('')
-  const [cvText, setCvText] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [generatedLetter, setGeneratedLetter] = useState('')
-  const [unlocked, setUnlocked] = useState(false)
-  const [useJobAd, setUseJobAd] = useState(true)
+  const { data: session } = useSession();
+  const [jobText, setJobText] = useState('');
+  const [cvText, setCvText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [generatedLetter, setGeneratedLetter] = useState('');
+  const [unlocked, setUnlocked] = useState(false);
+  const [useJobAd, setUseJobAd] = useState(true);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [eligible, setEligible] = useState(false)
-  const [checkingEligibility, setCheckingEligibility] = useState(true)
+  const [eligible, setEligible] = useState(false);
+  const [checkingEligibility, setCheckingEligibility] = useState(true);
 
-  const router = useRouter()
+  const router = useRouter();
 
-  // Check user access via secure API route
   useEffect(() => {
-  const checkEligibility = async () => {
-    console.log("🔍 Session:", session); // ✅ Add this line
-
-    if (!session?.user?.email) {
-      setEligible(false);
-      setUnlocked(false);
-      setCheckingEligibility(false);
-      return;
-    }
-
-    try {
-      const initResponse = await fetch('/api/auth/post-login-init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session.user.email }),
-      });
-
-      if (!initResponse.ok) {
-        throw new Error('Failed to initialize user in Firestore');
-      }
-
-      const accessRes = await fetch('/api/auth/check-access', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!accessRes.ok) {
+    const checkEligibility = async () => {
+      if (!session?.user?.email) {
         setEligible(false);
         setUnlocked(false);
+        setCheckingEligibility(false);
         return;
       }
 
-      const data = await accessRes.json();
+      try {
+        const initResponse = await fetch('/api/auth/post-login-init', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: session.user.email }),
+        });
 
-      if ((data.usageCount !== undefined && data.usageCount < 1) || data.subscriptionActive === true) {
-        setEligible(true);
-        setUnlocked(true);
-      } else if (data.unlocked) {
-        setEligible(true);
-        setUnlocked(true);
-      } else {
+        if (!initResponse.ok) {
+          throw new Error('Failed to initialize user in Firestore');
+        }
+
+        const accessRes = await fetch('/api/check-access', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!accessRes.ok) {
+          setEligible(false);
+          setUnlocked(false);
+          return;
+        }
+
+        const data = await accessRes.json();
+
+        if ((data.usageCount !== undefined && data.usageCount < 1) || data.subscriptionActive === true || data.unlocked) {
+          setEligible(true);
+          setUnlocked(true);
+        } else {
+          setEligible(false);
+          setUnlocked(false);
+        }
+      } catch (error) {
+        console.error('Error checking access:', error);
         setEligible(false);
         setUnlocked(false);
+      } finally {
+        setCheckingEligibility(false);
       }
-    } catch (error) {
-      console.error('Error checking access:', error);
-      setEligible(false);
-      setUnlocked(false);
-    } finally {
-      setCheckingEligibility(false);
-    }
-  };
+    };
 
-  checkEligibility();
-}, [session]);
-
+    checkEligibility();
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setGeneratedLetter('')
-    setUnlocked(false)
+    e.preventDefault();
+    setLoading(true);
+    setGeneratedLetter('');
+    setUnlocked(false);
 
     try {
-      const endpoint = useJobAd ? 'adapt-cv' : 'generate'
+      const endpoint = useJobAd ? 'adapt-cv' : 'generate';
       const res = await fetch(`https://vpechatli-api.onrender.com/${endpoint}`, {
         method: 'POST',
         headers: {
@@ -97,45 +91,37 @@ export default function CreatePage() {
           job_text: useJobAd ? jobText : '',
           cv_text: cvText,
         }),
-      })
+      });
 
-      const data = await res.json()
-      const content = useJobAd ? data.cv : data.letter || data.error || ''
+      const data = await res.json();
+      const content = useJobAd ? data.cv : data.letter || data.error || '';
 
       if (!content.trim().toUpperCase().startsWith('YES')) {
-        alert('Въведената обява не е достатъчно информативна. Моля, опитай с по-конкретен текст.')
-        setGeneratedLetter('')
-        return
+        alert('Въведената обява не е достатъчно информативна. Моля, опитай с по-конкретен текст.');
+        setGeneratedLetter('');
+        return;
       }
 
-      setGeneratedLetter(content)
-      // Note: unlocked state depends on eligibility and payment
+      setGeneratedLetter(content);
     } catch (err) {
-      console.error('Грешка при заявката:', err)
-      alert('Възникна грешка при генериране. Опитай пак.')
+      console.error('Грешка при заявката:', err);
+      alert('Възникна грешка при генериране. Опитай пак.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleUnlock = () => {
-    // Normally triggers payment, here just unlock UI
-    setUnlocked(true)
-  }
+    setUnlocked(true); // This would trigger payment in production
+  };
 
   return (
     <>
       <Head>
         <title>Vpechatli.tech – AI Мотивационни писма и CV</title>
-        <meta
-          name="description"
-          content="Създай мотивационно писмо и адаптирай CV за конкретна обява с помощта на AI."
-        />
+        <meta name="description" content="Създай мотивационно писмо и адаптирай CV за конкретна обява с помощта на AI." />
         <meta property="og:title" content="Vpechatli.tech – AI Мотивационни писма и CV" />
-        <meta
-          property="og:description"
-          content="AI инструмент за персонализиране на документи за работа."
-        />
+        <meta property="og:description" content="AI инструмент за персонализиране на документи за работа." />
         <meta property="og:image" content="/og-image.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="index, follow" />
@@ -180,11 +166,7 @@ export default function CreatePage() {
                     key="jobfield"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{
-                      opacity: 0,
-                      y: -20,
-                      transition: { type: 'spring', stiffness: 700, damping: 30 },
-                    }}
+                    exit={{ opacity: 0, y: -20, transition: { type: 'spring', stiffness: 700, damping: 30 } }}
                     transition={{ duration: 0.4 }}
                   >
                     <label className="block font-semibold mb-2 text-cyan-800">Обява за работа</label>
@@ -259,5 +241,5 @@ export default function CreatePage() {
 
       <Footer />
     </>
-  )
+  );
 }
